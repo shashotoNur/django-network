@@ -1,0 +1,62 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+<div id="profile" class="p-3">
+    <div>
+        <h3 class="ml-5" style="display: inline-block;">{{ other_user.username }}</h3>
+        <div class="ml-5" style="display: inline-block;">
+            <div class="border border-secondary rounded p-2" style="display: inline-block;">Followers: {{ followers }}</div>
+            <div class="border border-secondary rounded ml-2 p-2" style="display: inline-block;">Following: {{ following }}</div>
+
+            <form style="display: inline-block;" action="{% url 'profile' other_user.id %}" method="post">
+            {% if user.id != other_user.id %}
+                {% csrf_token %}
+                {% if button == "Follow" %}
+                    <button type="submit" class="btn btn-secondary ml-2" name="button" value="Follow">Follow</button>
+                {% else %}
+                    <button type="submit" class="btn btn-dark ml-2" name="button" value="Unfollow">Unfollow</button>
+                {% endif %}
+            {% else %}
+            {% endif %}
+            </form>
+
+        </div>
+    </div>
+
+    <hr>
+
+    <div>
+        {% for post in post_page %}
+            <div class="card border border-dark p-3 mt-2">
+                <hr>
+                <h4> <a href="{% url 'profile' post.user.id %}">{{ post.user }}</a> </h4>
+                <div class="card-body bg-secondary text-light m-sm-2" id="post-{{post.id}}">{{ post.body }}</div>
+                {% csrf_token %}
+                {% if post.liked %}
+                        <input type="button" class="btn btn-dark btn-sm ml-sm-5 mr-sm-5" id="like-btn-{{post.id}}" onclick="like('{{ post.id }}')" value="{{ post.likes }}">
+                {% else %}
+                        <input type="button" class="btn-sm btn btn-light btn-outline-dark ml-sm-5 mr-sm-5" id="like-btn-{{post.id}}" onclick="like('{{ post.id }}')" value="{{ post.likes }}">
+                {% endif %}
+                <div>{{ post.timestamp }}</div>
+                <hr>
+            </div>
+            <br>
+        {% empty %}
+            <li>no post</li>
+        {% endfor %}
+    </div>
+
+    {% if post_page.has_next %}
+        <a href="?page={{ post_page.next_page_number }}">next</a>
+    {% endif %}
+
+    {% if post_page.has_previous %}
+        <a href="?page={{ post_page.previous_page_number }}">previous</a>
+    {% endif %}
+
+</div>
+
+{% endblock %}
+

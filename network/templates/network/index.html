@@ -1,0 +1,55 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div id="all-posts" class="p-3">
+    <h3>All Posts</h3>
+
+    <div class="border border-secondary rounded p-3">
+        <h6>New Post</h6>
+        <form id="new-post-form" action="{% url 'index' %}" method="post">
+            {% csrf_token %}
+            <textarea class="form-control mb-2" id="new-post-text" name="post" placeholder="What's on your mind?"></textarea>
+            <input type="submit" class="btn btn-primary" id="new-post-send" value="Post"/>
+        </form>
+    </div>
+    <hr>
+
+    <div>
+        {% for post in post_page %} 
+        <div class="card border border-dark p-3 mt-2">
+                <hr>
+                <h4> <a href="{% url 'profile' post.user.id %}">{{ post.user }}</a> </h4>
+                <div class="card-body bg-secondary text-light m-sm-2" id="post-{{post.id}}">{{ post.body }}</div>
+                {% if post.user.id == user.id %}
+                    <div id="edit" onclick="edit('{{ post.id }}')" class="text-primary">Edit</div>
+                {% else %}
+                    {% if post.liked %}
+                        <input type="button" class="btn btn-dark btn-sm ml-sm-5 mr-sm-5" id="like-btn-{{post.id}}" onclick="like('{{ post.id }}')" value="{{ post.likes }}">
+                    {% else %}
+                        <input type="button" class="btn-sm btn btn-light btn-outline-dark ml-sm-5 mr-sm-5" id="like-btn-{{post.id}}" onclick="like('{{ post.id }}')" value="{{ post.likes }}">
+                    {% endif %}
+                {% endif %}
+
+                {% csrf_token %}
+                <textarea class="form-control mb-2" id="edit-box-{{post.id}}" name="edit-box" style="display:none;"></textarea>
+                <input type="button" class="btn-sm btn btn-primary ml-sm-5 mr-sm-5" style="display:none;" id="edit-btn-{{post.id}}" onclick="editData('{{ post.id }}')" value="Save">
+                <div>{{ post.timestamp }}</div>
+                <hr>
+            </div>
+            <br>
+        {% empty %}
+            <li>no post</li>
+        {% endfor %}
+    </div>
+
+    {% if post_page.has_next %}
+        <a href="?page={{ post_page.next_page_number }}">next</a>
+    {% endif %}
+
+    {% if post_page.has_previous %}
+        <a href="?page={{ post_page.previous_page_number }}">previous</a>
+    {% endif %}
+
+</div>
+{% endblock %}
